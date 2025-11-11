@@ -1,4 +1,4 @@
-# Proyecto PR1 - Programación Web
+# Proyecto PR1 - Programación Web - Alejandra Iriondo
 
 Este proyecto es parte de la asignatura de Programación Web de la UOC. 
 
