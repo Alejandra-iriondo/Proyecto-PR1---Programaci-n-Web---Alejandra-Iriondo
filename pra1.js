@@ -1,67 +1,125 @@
 // 1. Creación de la clase Pokemon, que representa a un objeto Pokemon
 class Pokemon {
   constructor({ id, name, description, height, weight, baseExperience, types, sprites, stats }) {
-
+    this._id = id;
+     this._name = name;
+     this._description = description;
+     this._height = height;
+     this._weight = weight;
+    this._baseExperience = baseExperience;
+    this._types = types || [];
+    this._sprites = sprites;
+    this._stats = stats || [];
   }
 
   // === Getters y Setters ===
-  
+  get id() { return this._id; }
+  set id(v) { this._id = v; }
+
+  get name() { return this._name; }
+  set name(v) { this._name = v; }
+
+  get description() { return this._description; }
+  set description(v) { this._description = v; }
+
+  get height() { return this._height; }
+  set height(v) { this._height = v; }
+
+  get weight() { return this._weight; }
+  set weight(v) { this._weight = v; }
+
+  get baseExperience() { return this._baseExperience; }
+  set baseExperience(v) { this._baseExperience = v; }
+
+  get types() { return this._types; }
+  set types(v) { this._types = v || []; }
+
+  get sprites() { return this._sprites; }
+  set sprites(v) { this._sprites = v; }
+
+  get stats() { return this._stats; }
+  set stats(v) { this._stats = v || []; }
 }
 
 // 2. Creación de la clase PokemonList
 class PokemonList {
   constructor() {
-
+    this.list = [];
   }
 
   // Añadir un Pokémon a la lista
   addPokemon(pokemon) {
-    
+    this.list.push(pokemon);
   }
 
   // Eliminar un Pokémon de la lista por ID
   removePokemon(pokemonId) {
-
+    this.list = this.list.filter(p => p.id !== pokemonId);
   }
 
   // Mostrar la lista de Pokémon (nombre, tipo principal e imagen)
   showList() {
-
+    this.list.forEach(p => {
+      const mainType = (p.types && p.types.length > 0) ? p.types[0] : "unknown";
+      console.log(`${p.name} | ${mainType} | ${p.sprites}`);
+    });
   }
 
   // 3. Funciones flecha
 
   // Añadir múltiples Pokémon a la vez
   addMultiplePokemons = (...pokemons) => {
-  
-};
+    pokemons.forEach(p => this.addPokemon(p));
+  };
 
   // Obtener Pokémon dentro de un rango de peso
   getPokemonsByWeightRange = (minWeight, maxWeight) => {
-
+    return this.list.filter(p => p.weight >= minWeight && p.weight <= maxWeight);
   };
 
-  // Ordenar Pokémon por experiencia base
+  // Ordenar Pokémon por experiencia base (ascendente)
   sortPokemonsByBaseExperience = () => {
-
+    this.list.sort((a, b) => a.baseExperience - b.baseExperience);
+    return this.list;
   };
 }
 
 // 4. Función recursiva para buscar un Pokémon por ID
 function findPokemonById(pokemonList, id, index = 0) {
-
+  const arr = Array.isArray(pokemonList) ? pokemonList : pokemonList.list;
+  if (index >= arr.length) return null;
+  if (arr[index].id === id) return arr[index];
+  return findPokemonById(arr, id, index + 1);
 }
 
 // 5. Uso de reduce para encontrar el tipo más común
 function getMostCommonType(pokemonList) {
+  const arr = Array.isArray(pokemonList) ? pokemonList : pokemonList.list;
+  const typeCount = arr.reduce((acc, p) => {
+    (p.types || []).forEach(t => {
+      acc[t] = (acc[t] || 0) + 1;
+    });
+    return acc;
+  }, {});
 
+  let mostType = null;
+  let max = -1;
+  for (const t in typeCount) {
+    if (typeCount[t] > max) {
+      max = typeCount[t];
+      mostType = t;
+    }
+  }
+  return mostType; // string con el tipo más común (o null si no hay)
 }
 
 // 6. Uso de map y filter para obtener Pokémon fuertes por ataque
 function getStrongPokemons(pokemons, minAttack) {
-
+  return pokemons.filter(p => {
+    const attackObj = (p.stats || []).find(s => s.name === "attack");
+    return attackObj && attackObj.value >= minAttack;
+  });
 }
-
 
 /* ====================================
    DATOS DE EJEMPLO PARA LA VALIDACIÓN
@@ -123,38 +181,52 @@ const charmander = new Pokemon({
     EJEMPLOS DE USO Y VALIDACIÓN
     ==================================== */
 
-
 // Uso de getters y setters
-
+pikachu.name = "Pikachu (Ash)";
+console.log(pikachu.name);
 
 // Crear una lista de Pokémons
-
+const list = new PokemonList();
 
 // Ejemplo 1: añadir un Pokémon
-
+list.addPokemon(pikachu);
 
 // Ejemplo 2: añadir múltiples Pokémons
+list.addMultiplePokemons(bulbasaur, charmander);
 
+// Ejemplo 3: eliminar un Pokémon inexistente (no hace nada)
+list.removePokemon(999);
 
-// Ejemplo 3: eliminar un Pokémon
-
-
-// Ejemplo 4: eliminar un Pokémon
-
+// Ejemplo 4: eliminar un Pokémon existente
+list.removePokemon(4); // elimina a Charmander
+// Volvemos a añadir Charmander para seguir con los ejemplos
+list.addPokemon(charmander);
 
 // Ejemplo 5: mostrar la lista de Pokémons
-
+list.showList();
 
 // Ejemplo 6: obtener Pokémon por rango de peso
-
+console.log("Peso 60-80:", list.getPokemonsByWeightRange(60, 80).map(p => p.name));
 
 // Ejemplo 7: ordenar Pokémon por experiencia base
+list.sortPokemonsByBaseExperience();
+console.log("Orden por baseExperience:", list.list.map(p => `${p.name}(${p.baseExperience})`));
+
+// Ejemplo 8: F. Recursiva para buscar un Pokémon por ID
+console.log("Buscar ID 1:", findPokemonById(list, 1)?.name);
+
+// Ejemplo 9: Tipo más común
+console.log("Tipo más común:", getMostCommonType(list));
+
+// Ejemplo 10: Pokémon fuertes por ataque (>= 53)
+console.log("Fuertes (attack>=53):", getStrongPokemons(list.list, 53).map(p => p.name));
 
 
 // Ejemplo 8: F. Recursiva para buscar un Pokémon por ID
-
+console.log("Buscar ID 1:", findPokemonById(list, 1)?.name);
 
 // Ejemplo 9: Tipo más común
+console.log("Tipo más común:", getMostCommonType(list));
 
-
-// Ejemplo 10: Pokémon fuertes por ataque
+// Ejemplo 10: Pokémon fuertes por ataque     (>= 53)
+console.log("Fuertes (attack>=53):", getStrongPokemons(list.list, 53).map(p => p.name));
