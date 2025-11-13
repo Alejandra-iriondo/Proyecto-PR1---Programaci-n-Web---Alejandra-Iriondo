@@ -8,26 +8,26 @@ Este proyecto forma parte de la PEC1 de Programación Web y consiste en implemen
 
 Programación Orientada a Objetos (POO)
 
--Clases, getters, setters y métodos estáticos
+- Clases, getters, setters y métodos estáticos
 
--Funciones flecha
+- Funciones flecha
 
--Recursividad
+- Recursividad
 
--map, filter, reduce
+- map, filter, reduce
 
 -Fetch API para acceder a PokéAPI
 
 El objetivo es crear una aplicación que pueda cargar Pokémon desde la API oficial, almacenarlos en una lista, filtrarlos, ordenarlos y mostrar diferentes estadísticas.
 
 ## Técnologías utilizadas
--JavaScript ES6+
+- JavaScript ES6+
 
--PokéAPI (https://pokeapi.co/)
+- PokéAPI (https://pokeapi.co/)
 
--HTML para cargar el script en el navegador
+- HTML para cargar el script en el navegador
 
--Consola del navegador (Chrome, Firefox, Edge)
+- Consola del navegador (Chrome, Firefox, Edge)
 
 ## Estructura del Proyecto
 
@@ -41,42 +41,44 @@ El proyecto contiene los siguientes archivos:
 1. Clase Pokemon
 Representa un Pokémon con propiedades como:
 
--id
+- id
 
--name
+- name
 
--description
+- description
 
--height / weight
+- height / weight
 
--baseExperience
+- baseExperience
 
--types
+- types
 
--sprites
+- sprites
 
--stats
+- stats
 
 Incluye:
--getters y setters
 
--modelos compatibles con PokéAPI
+- getters y setters
+
+- modelos compatibles con PokéAPI
 
 
 2. Clase PokemonList
--Permite gestionar varios Pokémon:
 
--añadir Pokémon
+- Permite gestionar varios Pokémon:
 
--eliminar Pokémon por ID
+- añadir Pokémon
 
--mostrar lista básica
+- eliminar Pokémon por ID
 
--añadir múltiples Pokémon (rest + arrow function)
+- mostrar lista básica
 
--obtener Pokémon por rango de peso
+- añadir múltiples Pokémon (rest + arrow function)
 
--ordenar por experiencia base
+- obtener Pokémon por rango de peso
+
+- ordenar por experiencia base
 
 4. Función recursiva
 
@@ -98,11 +100,11 @@ getStrongPokemons() usando filter + map
 
 Funcionalidades añadidas:
 
--Cargar un Pokémon por nombre o ID usando fetch()
+- Cargar un Pokémon por nombre o ID usando fetch()
 
--Obtener información adicional desde /pokemon-species/
+- Obtener información adicional desde /pokemon-species/
 
--Cargar varios Pokémon y añadirlos a la lista
+- Cargar varios Pokémon y añadirlos a la lista
 
 Código principal:
 
@@ -149,13 +151,13 @@ Este proyecto implementa todos los conceptos fundamentales de la asignatura:
 
 Clases y POO
 
--Funciones flecha y rest/spread
+- Funciones flecha y rest/spread
 
--Recursión
+- Recursión
 
--Manipulación avanzada de arrays
+- Manipulación avanzada de arrays
 
--JSON + Fetch API
+- JSON + Fetch API
 
 Y además integra PokéAPI para trabajar con datos reales.
 
