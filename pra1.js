@@ -2,10 +2,10 @@
 class Pokemon {
   constructor({ id, name, description, height, weight, baseExperience, types, sprites, stats }) {
     this._id = id;
-     this._name = name;
-     this._description = description;
-     this._height = height;
-     this._weight = weight;
+    this._name = name;
+    this._description = description;
+    this._height = height;
+    this._weight = weight;
     this._baseExperience = baseExperience;
     this._types = types || [];
     this._sprites = sprites;
@@ -121,11 +121,85 @@ function getStrongPokemons(pokemons, minAttack) {
   });
 }
 
+// ======================================
+// 7) Helpers para cargar desde PokéAPI
+// ======================================
+
+// Mapea el JSON de /pokemon a nuestro constructor Pokemon
+function mapPokemonAPItoModel(data, descriptionText = "") {
+  return new Pokemon({
+    id: data.id,
+    name: data.name,
+    description: descriptionText, // opcional desde species
+    height: data.height,
+    weight: data.weight,
+    baseExperience: data.base_experience,
+    types: (data.types || []).map(t => t.type.name),
+    sprites: data.sprites?.other?.["official-artwork"]?.front_default || data.sprites?.front_default || "",
+    stats: (data.stats || []).map(s => ({ name: s.stat.name, value: s.base_stat }))
+  });
+}
+
+// Obtiene una descripción (si existe) desde /pokemon-species/{id} en el idioma indicado
+async function fetchSpeciesDescription(id, lang = "es") {
+  try {
+    const resp = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`);
+    if (!resp.ok) return "";
+    const species = await resp.json();
+    const entry =
+      species.flavor_text_entries.find(e => e.language?.name === lang) ||
+      species.flavor_text_entries.find(e => e.language?.name === "en");
+    return entry ? entry.flavor_text.replace(/\s+/g, " ").trim() : "";
+  } catch {
+    return "";
+  }
+}
+
+// Carga un Pokémon por nombre o id desde PokéAPI y devuelve una instancia de nuestra clase
+async function loadPokemonFromAPI(nameOrId, lang = "es") {
+  const resp = await fetch(`https://pokeapi.co/api/v2/pokemon/${nameOrId}`);
+  if (!resp.ok) throw new Error(`No se encontró el Pokémon: ${nameOrId}`);
+  const data = await resp.json();
+  const description = await fetchSpeciesDescription(data.id, lang);
+  return mapPokemonAPItoModel(data, description);
+}
+
+// Carga varios por nombre/id
+async function loadManyPokemonsFromAPI(namesOrIds, lang = "es") {
+  const results = [];
+  for (const n of namesOrIds) {
+    try {
+      const p = await loadPokemonFromAPI(n, lang);
+      results.push(p);
+    } catch (e) {
+      console.warn(`No se pudo cargar ${n}:`, e.message);
+    }
+  }
+  return results;
+}
+
+// ==================================================
+// 8) Demo: cargar desde API y usar con PokemonList
+// ==================================================
+(async () => {
+  const toLoad = ["pikachu", "bulbasaur", "charmander"];
+  const loaded = await loadManyPokemonsFromAPI(toLoad, "es");
+
+  const apiList = new PokemonList();
+  apiList.addMultiplePokemons(...loaded);
+
+  console.log("=== LISTA DESDE API ===");
+  apiList.showList();
+
+  const found = findPokemonById(apiList, 25);
+  console.log("Encontrado ID 25:", found?.name);
+})(); // <-- cierro IIFE 
+
 /* ====================================
    DATOS DE EJEMPLO PARA LA VALIDACIÓN
    ==================================== */
 
-// Creamos algunos Pokémon válidos
+// Creamos algunos Pokémon válidos (mock)
 const pikachu = new Pokemon({
   id: 25,
   name: "Pikachu",
@@ -178,8 +252,8 @@ const charmander = new Pokemon({
 });
 
 /* ====================================
-    EJEMPLOS DE USO Y VALIDACIÓN
-    ==================================== */
+    EJEMPLOS DE USO Y VALIDACIÓN 
+   ==================================== */
 
 // Uso de getters y setters
 pikachu.name = "Pikachu (Ash)";
@@ -194,12 +268,13 @@ list.addPokemon(pikachu);
 // Ejemplo 2: añadir múltiples Pokémons
 list.addMultiplePokemons(bulbasaur, charmander);
 
-// Ejemplo 3: eliminar un Pokémon inexistente (no hace nada)
+// Ejemplo 3: eliminar un Pokémon inexistente
 list.removePokemon(999);
 
 // Ejemplo 4: eliminar un Pokémon existente
 list.removePokemon(4); // elimina a Charmander
-// Volvemos a añadir Charmander para seguir con los ejemplos
+
+// Volver a añadir Charmander para seguir con los ejemplos
 list.addPokemon(charmander);
 
 // Ejemplo 5: mostrar la lista de Pokémons
@@ -212,21 +287,11 @@ console.log("Peso 60-80:", list.getPokemonsByWeightRange(60, 80).map(p => p.name
 list.sortPokemonsByBaseExperience();
 console.log("Orden por baseExperience:", list.list.map(p => `${p.name}(${p.baseExperience})`));
 
-// Ejemplo 8: F. Recursiva para buscar un Pokémon por ID
+// Ejemplo 8: función recursiva para buscar un Pokémon por ID
 console.log("Buscar ID 1:", findPokemonById(list, 1)?.name);
 
-// Ejemplo 9: Tipo más común
+// Ejemplo 9: tipo más común
 console.log("Tipo más común:", getMostCommonType(list));
 
 // Ejemplo 10: Pokémon fuertes por ataque (>= 53)
-console.log("Fuertes (attack>=53):", getStrongPokemons(list.list, 53).map(p => p.name));
-
-
-// Ejemplo 8: F. Recursiva para buscar un Pokémon por ID
-console.log("Buscar ID 1:", findPokemonById(list, 1)?.name);
-
-// Ejemplo 9: Tipo más común
-console.log("Tipo más común:", getMostCommonType(list));
-
-// Ejemplo 10: Pokémon fuertes por ataque     (>= 53)
-console.log("Fuertes (attack>=53):", getStrongPokemons(list.list, 53).map(p => p.name));
+console.log("Fuertes (attack >= 53):", getStrongPokemons(list.list, 53).map(p => p.name));
